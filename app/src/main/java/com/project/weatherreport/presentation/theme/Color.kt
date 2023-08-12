@@ -20,3 +20,10 @@ val Gradient = Brush.linearGradient(
 //        start = Offset.Zero,
 //        end = Offset.Infinite
 )
+
+val ErrorGradient = Brush.linearGradient(
+    0.0f to Color(255, 77, 92, 255),
+    1.0f to Color(219, 244, 255),
+//        start = Offset.Zero,
+//        end = Offset.Infinite
+)

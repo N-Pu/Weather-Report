@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -48,6 +49,7 @@ import com.project.weatherreport.domain.forecastModel.ForecastModel
 import com.project.weatherreport.domain.forecastModel.Forecastday
 import com.project.weatherreport.domain.viewModel.ForecastViewModel
 import com.project.weatherreport.presentation.animation.LoadingAnimation
+import com.project.weatherreport.presentation.theme.ErrorGradient
 import com.project.weatherreport.presentation.theme.Gradient
 import java.util.Locale
 
@@ -58,19 +60,30 @@ fun ShowWeatherScreen(viewModelProvider: ViewModelProvider, modifier: Modifier) 
     val viewModel = viewModelProvider[ForecastViewModel::class.java]
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
     val isSearching by viewModel.isPerformingSearch.collectAsStateWithLifecycle()
+    val message by viewModel.message.collectAsStateWithLifecycle()
+
     ShowData(
         viewModel = viewModel,
         searchText = searchText,
         isSearching = isSearching,
-        modifier = modifier
+        modifier = modifier,
+//        reportIndicator = reportIndicator,
+        message = message
     )
+
+
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShowData(
-    viewModel: ForecastViewModel, searchText: String, isSearching: Boolean, modifier: Modifier
+    viewModel: ForecastViewModel,
+    searchText: String,
+    isSearching: Boolean,
+    modifier: Modifier,
+//    reportIndicator: Boolean,
+    message: String?
 ) {
 
     val data by viewModel.forecastData.collectAsStateWithLifecycle()
@@ -79,7 +92,7 @@ private fun ShowData(
         animationSpec = tween(durationMillis = 2500),
         label = "" // Увеличиваем длительность анимации
     )
-    Row {
+    Row(modifier = Modifier.fillMaxSize(1f)) {
         OutlinedTextField(
             value = searchText,
             onValueChange = viewModel::onSearchTextChange,
@@ -93,6 +106,66 @@ private fun ShowData(
     }
 
     if (!isSearching) {
+
+        if (searchText.isEmpty() && message == null) {
+
+            Row(
+                modifier = modifier,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = modifier
+                        .clip(CardDefaults.shape)
+                        .size(200.dp)
+                        .background(Gradient),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Enter a city to get the weather forecast",
+                        color = Color.White,
+                        fontSize = 27.sp, style = MaterialTheme.typography.headlineMedium,
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+
+        }
+
+        message?.let {
+            Row(
+                modifier = modifier,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = modifier
+                        .clip(CardDefaults.shape)
+                        .size(200.dp)
+                        .background(ErrorGradient),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = it,
+                        color = Color.White,
+                        fontSize = 27.sp, style = MaterialTheme.typography.headlineMedium,
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+        }
+
         Column(
             modifier = modifier
                 .alpha(alpha)
@@ -349,7 +422,9 @@ private fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifi
                         text = forecastDay.day.condition.text,
                         color = Color.White,
                         fontSize = 14.sp,
-                        style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
 

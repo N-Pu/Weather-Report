@@ -33,13 +33,18 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
 
     private val searchDebouncer = MutableSharedFlow<String>()
 
+
+    private val _message = MutableStateFlow<String?>(null)
+    val message = _message
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             searchDebouncer
                 .debounce(500L)
                 .distinctUntilChanged()
                 .collectLatest { searchQuery ->
-                    if (searchQuery.length > 3) {
+                    _message.value = null // Очищаем сообщение об ошибке, если запрос успешен
+                    if (searchQuery.length > 2) {
                         performSearch(searchQuery, _days.value)
                     } else {
                         _forecastData.value = null
@@ -58,18 +63,46 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
         }
     }
 
+//    private fun performSearch(q: String, days: Int) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                _isPerformingSearch.value = true
+//                _reportIndicator.value = false
+//                _forecastData.value = api.getForecast(q, days).body()
+//            } catch (e: Exception) {
+//                Log.e("ForecastViewModel", "Failed to perform search: ${e.message}")
+//
+//                _reportIndicator.value = true
+//
+//            } finally {
+//                _isPerformingSearch.value = false
+//            }
+//        }
+//    }
+
     private fun performSearch(q: String, days: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+            // Очищаем сообщение об ошибке, если запрос успешен
                 _isPerformingSearch.value = true
-                _forecastData.value = api.getForecast(q, days).body()
-
+                val response = api.getForecast(q, days)
+                if (response.isSuccessful) {
+                    _forecastData.value = response.body()
+                    _message.value = null // Очищаем сообщение об ошибке, если запрос успешен
+                } else {
+                    if (response.code() == 400) {
+                        _forecastData.value = null
+                        _message.value = "City name entered incorrectly"
+                    }
+                }
             } catch (e: Exception) {
                 Log.e("ForecastViewModel", "Failed to perform search: ${e.message}")
+                _message.value = "Ошибка при выполнении запроса"
             } finally {
                 _isPerformingSearch.value = false
             }
         }
     }
+
 
 }
