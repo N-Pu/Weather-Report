@@ -8,8 +8,6 @@ import com.project.weatherreport.domain.forecastModel.ForecastModel
 import com.project.weatherreport.repository.WeatherApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,7 +39,7 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
                 .debounce(500L)
                 .distinctUntilChanged()
                 .collectLatest { searchQuery ->
-                    if (searchQuery.isNotEmpty()) {
+                    if (searchQuery.length > 3) {
                         performSearch(searchQuery, _days.value)
                     } else {
                         _forecastData.value = null
@@ -50,14 +48,6 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
         }
     }
 
-//    fun onSearchTextChange(text: String) {
-//        _searchText.value = text
-//        viewModelScope.launch(Dispatchers.IO) {
-//            if (!isPerformingSearch.value) {
-//                searchDebouncer.emit(text)
-//            }
-//        }
-//    }
 
     fun onSearchTextChange(text: String) {
         _searchText.value = text
@@ -67,22 +57,6 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
             }
         }
     }
-
-
-//    private var currentSearchJob: Job? = null // Ссылка на текущий job запроса
-//
-//    fun onSearchTextChange(text: String) {
-//        _searchText.value = text
-//        currentSearchJob?.cancel() // Отменяем предыдущий job, если он существует
-//        viewModelScope.launch(Dispatchers.IO) {
-//            if (!isPerformingSearch.value && text.isNotEmpty()) {
-//                currentSearchJob = launch {
-//                    delay(1500L) // Задержка дебаунса
-//                    performSearch(text, _days.value)
-//                }
-//            }
-//        }
-//    }
 
     private fun performSearch(q: String, days: Int) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -228,12 +228,10 @@ fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-//                        verticalArrangement = Arrangement.Top
                         modifier = Modifier.padding(top = 0.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.Bottom,
-//                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Icon(
                                 painter = painter,
@@ -258,16 +256,11 @@ fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-//                    Column {
                     Text(
                         text = "max: $maxTempC°C | hum: $avgHumidity φ",
                         color = Color.White,
                         fontSize = 14.sp
                     )
-//                    }
-//                    Column {
-//                        Text(text = "hum: $avgHumidity φ", color = Color.White, fontSize = 14.sp)
-//                    }
                 }
 
 
