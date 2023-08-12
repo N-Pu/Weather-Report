@@ -8,6 +8,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +18,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,10 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +48,7 @@ import com.project.weatherreport.domain.forecastModel.ForecastModel
 import com.project.weatherreport.domain.forecastModel.Forecastday
 import com.project.weatherreport.domain.viewModel.ForecastViewModel
 import com.project.weatherreport.presentation.animation.LoadingAnimation
+import com.project.weatherreport.presentation.theme.Gradient
 import java.util.Locale
 
 
@@ -80,16 +80,16 @@ private fun ShowData(
         label = "" // Увеличиваем длительность анимации
     )
     Row {
-        OutlinedTextField(value = searchText,
+        OutlinedTextField(
+            value = searchText,
             onValueChange = viewModel::onSearchTextChange,
             modifier = modifier
                 .fillMaxWidth(1f)
-                .padding(all = 10.dp),
+                .padding(start = 20.dp, end = 20.dp, top = 20.dp),
             singleLine = true,
             maxLines = 1,
-            label = {
-                Icon(imageVector = Icons.Default.Search, contentDescription = "Search label")
-            })
+            shape = RoundedCornerShape(size = 40.dp)
+        )
     }
 
     if (!isSearching) {
@@ -142,8 +142,10 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                 .height(250.dp)
                 .padding(horizontal = 40.dp)
                 .shadow(elevation = 3.dp, shape = CardDefaults.shape)
+                .border(width = 3.dp, color = Color(0x5EFFFFFF), shape = CardDefaults.shape)
                 .clip(CardDefaults.shape)
-                .background(Color.Gray)
+                .background(Gradient)
+
 
         ) {
             Column(
@@ -161,13 +163,14 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                     Text(
                         text = "$state, $country",
                         color = Color.White,
-                        fontSize = 30.sp,
+                        fontSize = 32.sp,
                         modifier = modifier.basicMarquee(
                             iterations = Int.MAX_VALUE,
                             delayMillis = 2000,
                             initialDelayMillis = 2000,
                             velocity = 50.dp
-                        )
+                        ),
+                        style = MaterialTheme.typography.titleMedium
 
                     )
                 }
@@ -183,13 +186,7 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                             color = Color.White,
                             fontSize = 44.sp,
                             fontWeight = FontWeight.Bold,
-                            style = TextStyle(
-                                shadow = Shadow(
-                                    offset = Offset(x = 0f, y = 6f),
-                                    blurRadius = 5f,
-                                    color = Color.Black.copy(alpha = 0.5f)
-                                )
-                            )
+                            style = MaterialTheme.typography.titleMedium
                         )
                     }
 
@@ -213,7 +210,10 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                 }
                 Row {
                     Text(
-                        text = condition, color = Color.White, fontStyle = FontStyle.Italic
+                        text = condition,
+                        color = Color.White,
+                        fontStyle = FontStyle.Italic,
+                        style = MaterialTheme.typography.headlineMedium
                     )
 
                 }
@@ -226,7 +226,8 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                         text = "max: $maxTempC°C | hum: $avgHumidity φ | Max wind: $maxWind",
                         color = Color.White,
                         fontSize = 14.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 }
 
@@ -238,13 +239,7 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                         text = getCurrentDateWithDayAndMonthNames(),
                         fontSize = 20.sp,
                         color = Color.White,
-                        style = TextStyle(
-                            shadow = Shadow(
-                                offset = Offset(x = 0f, y = 6f),
-                                blurRadius = 5f,
-                                color = Color.Black.copy(alpha = 0.5f)
-                            )
-                        )
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 }
             }
@@ -269,7 +264,8 @@ private fun getCurrentDateWithDayAndMonthNames(): String {
 
 
 @Composable
-fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifier) {
+private fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifier) {
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -286,35 +282,64 @@ fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifier) {
             Row(
                 modifier = modifier
                     .clip(CardDefaults.shape)
+                    .shadow(elevation = 3.dp, shape = CardDefaults.shape)
                     .fillMaxWidth(1f)
-                    .padding(bottom = 10.dp),
+                    .border(width = 3.dp, color = Color(0x5EFFFFFF), shape = CardDefaults.shape)
+                    .background(Gradient),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Center
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceAround,
+                    verticalArrangement = Arrangement.Center,
                     modifier = modifier
-                        .shadow(elevation = 3.dp, shape = CardDefaults.shape)
+                        .weight(1f)
                         .clip(CardDefaults.shape)
-                        .background(Color.Gray)
-                        .padding(10.dp)
-                ) {
-                    Text(text = "avg: ${forecastDay.day.avgtemp_c}°C", color = Color.White)
-                    Text(text = "max: ${forecastDay.day.maxtemp_c}°C", color = Color.White)
-                    Text(text = "hum: ${forecastDay.day.avghumidity} φ", color = Color.White)
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Bottom,
-                    modifier = modifier
-                        .shadow(elevation = 3.dp, shape = CardDefaults.shape)
-                        .clip(CardDefaults.shape)
-                        .background(Color.Gray)
                         .padding(10.dp)
 
                 ) {
-                    Text(text = forecastDay.date, color = Color.White, fontSize = 14.sp)
+                    Text(
+                        text = "avg: ${forecastDay.day.avgtemp_c}°C",
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text(
+                        text = "max: ${forecastDay.day.maxtemp_c}°C", color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text(
+                        text = "hum: ${forecastDay.day.avghumidity} φ", color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text(
+                        text = "wind: ${forecastDay.day.maxwind_kph} km/h",
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .background(Color(0x5EFFFFFF).copy(0.3f))
+                        .height(70.dp)
+                        .width(3.dp)
+
+                ) {
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = modifier
+                        .weight(1f)
+                        .clip(CardDefaults.shape)
+                        .padding(10.dp)
+
+                ) {
+                    Text(
+                        text = forecastDay.date,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                     Image(
                         painter = painter,
                         contentDescription = "Current condition in ${forecastDay.date} is ${forecastDay.day.condition.text}",
@@ -323,10 +348,9 @@ fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifier) {
                     Text(
                         text = forecastDay.day.condition.text,
                         color = Color.White,
-                        fontSize = 14.sp
-                    )
+                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
                 }
-
             }
 
         }

@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.project.weatherreport.presentation.theme.Purple40
+import com.project.weatherreport.presentation.theme.Gray
 import kotlinx.coroutines.delay
 
 
@@ -23,7 +23,7 @@ import kotlinx.coroutines.delay
 fun LoadingAnimation(
     modifier: Modifier,
     circleSize: Dp = 25.dp,
-    circleColor: Color = Purple40,
+    circleColor: Color = Gray,
     spaceBetween: Dp = 10.dp,
     travelDistance: Dp = 20.dp
 ) {

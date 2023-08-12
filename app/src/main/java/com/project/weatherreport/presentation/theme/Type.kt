@@ -1,34 +1,37 @@
 package com.project.weatherreport.presentation.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.project.weatherreport.R
 
 // Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+val MyTypography = Typography(
+    titleMedium = TextStyle(
+        fontFamily = FontFamily(Font(R.font.evolventa_bold)),
+        fontWeight = FontWeight.Bold,
+        fontSize = 30.sp,
+        shadow = Shadow(
+                                offset = Offset(x = 0f, y = 6f),
+                                blurRadius = 5f,
+                                color = Color.Black.copy(alpha = 0.5f)
+                            )
     ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+    headlineMedium = TextStyle(
+        fontFamily = FontFamily(Font(R.font.montserrat)),
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp,
+        shadow = Shadow(
+                                offset = Offset(x = 0f, y = 6f),
+                                blurRadius = 5f,
+                                color = Color.Black.copy(alpha = 0.5f)
+                            )
+    ),
+
 )
