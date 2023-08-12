@@ -2,10 +2,10 @@ package com.project.weatherreport.presentation.screens.mainPage
 
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
@@ -30,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -42,6 +45,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.project.weatherreport.domain.forecastModel.ForecastModel
+import com.project.weatherreport.domain.forecastModel.Forecastday
 import com.project.weatherreport.domain.viewModel.ForecastViewModel
 import com.project.weatherreport.presentation.animation.LoadingAnimation
 import java.util.Locale
@@ -69,16 +73,6 @@ private fun ShowData(
 ) {
 
     val data by viewModel.forecastData.collectAsStateWithLifecycle()
-    val avgTempC = data?.forecast?.forecastday?.drop(1)?.joinToString("°C, ") { forecastDay ->
-        forecastDay.day.avgtemp_c.toString()
-    }
-    val maxTempC = data?.forecast?.forecastday?.drop(1)?.joinToString("°C, ") { forecastDay ->
-        forecastDay.day.maxtemp_c.toString()
-    }
-    val avgHumidity = data?.forecast?.forecastday?.drop(1)?.joinToString(" φ, ") { forecastDay ->
-        forecastDay.day.avghumidity.toString()
-    }
-
     val alpha by animateFloatAsState(
         targetValue = if (data != null) 1f else 0f,
         animationSpec = tween(durationMillis = 2500),
@@ -104,8 +98,6 @@ private fun ShowData(
                 .fillMaxWidth(1f)
                 .fillMaxHeight(1f)
         ) {
-
-
             if (data != null) {
                 Row(
                     modifier = modifier.padding(top = 100.dp),
@@ -113,45 +105,12 @@ private fun ShowData(
                 ) {
                     TodayForecast(data = data, modifier = modifier)
                 }
-                Row(
-                    modifier = modifier
-                        .fillMaxWidth(1f)
-                        .height(60.dp)
-                        .padding(horizontal = 40.dp, vertical = 10.dp)
-                        .clip(CardDefaults.shape)
-                        .background(Color.Gray),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Text(text = avgTempC ?: "", color = Color.White)
 
-                    Log.d("ShowData", "avgTempC= $avgTempC")
-                }
-                Row(
-                    modifier = modifier
-                        .fillMaxWidth(1f)
-                        .height(60.dp)
-                        .padding(horizontal = 40.dp, vertical = 10.dp)
-                        .clip(CardDefaults.shape)
-                        .background(Color.Gray),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Text(text = maxTempC ?: "", color = Color.White)
-                    Log.d("ShowData", "maxTempC= $maxTempC")
-                }
-                Row(
-                    modifier = modifier
-                        .fillMaxWidth(1f)
-                        .height(60.dp)
-                        .padding(horizontal = 40.dp, vertical = 10.dp)
-                        .clip(CardDefaults.shape)
-                        .background(Color.Gray),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Text(text = avgHumidity ?: "", color = Color.White)
-                    Log.d("ShowData", "avgHumidity= $avgHumidity")
+                Row(modifier = modifier) {
+                    ForecastFourDaysAfter(
+                        forecast = data?.forecast?.forecastday?.drop(1),
+                        modifier = modifier
+                    )
                 }
             }
         }
@@ -163,7 +122,7 @@ private fun ShowData(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
+private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
     val condition = data?.current?.condition?.text ?: ""
     val avgTempC = data?.forecast?.forecastday?.get(0)?.day?.avgtemp_c.toString()
     val state = data?.location?.country ?: ""
@@ -171,24 +130,31 @@ fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
     val maxTempC = data?.forecast?.forecastday?.get(0)?.day?.maxtemp_c.toString()
     val avgHumidity = data?.forecast?.forecastday?.get(0)?.day?.avghumidity.toString()
     val painter = rememberAsyncImagePainter(model = "https:" + data?.current?.condition?.icon)
+    val maxWind = data?.forecast?.forecastday?.get(0)?.day?.maxwind_kph
 
 
     if (data != null) {
         Box(
             modifier = modifier
+
                 .fillMaxWidth(1f)
                 .height(250.dp)
                 .padding(horizontal = 40.dp)
+                .shadow(elevation = 3.dp, shape = CardDefaults.shape)
                 .clip(CardDefaults.shape)
                 .background(Color.Gray)
+
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
+
                     .fillMaxHeight(1f)
                     .fillMaxWidth(1f)
                     .padding(16.dp)
+
+
             ) {
                 Row {
                     Text(
@@ -238,9 +204,8 @@ fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                                 contentDescription = "Weather icon",
                                 modifier = modifier.size(70.dp),
                                 tint = Color.Unspecified,
+                            )
 
-
-                                )
                         }
                     }
 
@@ -257,7 +222,7 @@ fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "max: $maxTempC°C | hum: $avgHumidity φ",
+                        text = "max: $maxTempC°C | hum: $avgHumidity φ | Max wind: $maxWind",
                         color = Color.White,
                         fontSize = 14.sp
                     )
@@ -285,7 +250,7 @@ fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
     }
 }
 
-fun getCurrentDateWithDayAndMonthNames(): String {
+private fun getCurrentDateWithDayAndMonthNames(): String {
     val currentDate = Calendar.getInstance()
 
     val dayOfWeekFormat = SimpleDateFormat("EEEE", Locale.getDefault())
@@ -298,4 +263,70 @@ fun getCurrentDateWithDayAndMonthNames(): String {
     val day = currentDate.get(Calendar.DAY_OF_MONTH)
 
     return "$dayOfWeek, $day $month $year"
+}
+
+
+@Composable
+fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifier) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .height(500.dp)
+            .fillMaxWidth(1f)
+            .padding(horizontal = 40.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround
+    ) {
+
+        forecast?.forEach { forecastDay ->
+            val painter =
+                rememberAsyncImagePainter(model = "https:" + forecastDay.day.condition.icon)
+            Row(
+                modifier = modifier
+                    .clip(CardDefaults.shape)
+                    .fillMaxWidth(1f)
+                    .padding(bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceAround,
+                    modifier = modifier
+                        .shadow(elevation = 3.dp, shape = CardDefaults.shape)
+                        .clip(CardDefaults.shape)
+                        .background(Color.Gray)
+                        .padding(10.dp)
+                ) {
+                    Text(text = "avg: ${forecastDay.day.avgtemp_c}°C", color = Color.White)
+                    Text(text = "max: ${forecastDay.day.maxtemp_c}°C", color = Color.White)
+                    Text(text = "hum: ${forecastDay.day.avghumidity} φ", color = Color.White)
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = modifier
+                        .shadow(elevation = 3.dp, shape = CardDefaults.shape)
+                        .clip(CardDefaults.shape)
+                        .background(Color.Gray)
+                        .padding(10.dp)
+
+                ) {
+                    Text(text = forecastDay.date, color = Color.White, fontSize = 14.sp)
+                    Image(
+                        painter = painter,
+                        contentDescription = "Current condition in ${forecastDay.date} is ${forecastDay.day.condition.text}",
+                        modifier = modifier.size(40.dp)
+                    )
+                    Text(
+                        text = forecastDay.day.condition.text,
+                        color = Color.White,
+                        fontSize = 14.sp
+                    )
+                }
+
+            }
+
+        }
+    }
 }
