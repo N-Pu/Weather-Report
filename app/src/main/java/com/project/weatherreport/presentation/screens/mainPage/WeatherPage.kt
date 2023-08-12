@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
@@ -224,7 +225,8 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                     Text(
                         text = "max: $maxTempC°C | hum: $avgHumidity φ | Max wind: $maxWind",
                         color = Color.White,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
                     )
                 }
 
