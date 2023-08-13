@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
 
 plugins {
     id("com.android.application")
@@ -132,4 +131,7 @@ dependencies {
 
     //status bar colors
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+
+    // Splash Api
+    implementation ("androidx.core:core-splashscreen:1.0.1")
 }

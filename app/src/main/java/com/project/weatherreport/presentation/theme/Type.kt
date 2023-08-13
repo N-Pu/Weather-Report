@@ -18,20 +18,15 @@ val MyTypography = Typography(
         fontWeight = FontWeight.Bold,
         fontSize = 30.sp,
         shadow = Shadow(
-                                offset = Offset(x = 0f, y = 6f),
-                                blurRadius = 5f,
-                                color = Color.Black.copy(alpha = 0.5f)
-                            )
+            offset = Offset(x = 0f, y = 6f), blurRadius = 5f, color = Color.Black.copy(alpha = 0.5f)
+        )
     ),
     headlineMedium = TextStyle(
         fontFamily = FontFamily(Font(R.font.montserrat)),
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         shadow = Shadow(
-                                offset = Offset(x = 0f, y = 6f),
-                                blurRadius = 5f,
-                                color = Color.Black.copy(alpha = 0.5f)
-                            )
-    ),
-
+            offset = Offset(x = 0f, y = 6f), blurRadius = 5f, color = Color.Black.copy(alpha = 0.5f)
+        )
+    )
 )

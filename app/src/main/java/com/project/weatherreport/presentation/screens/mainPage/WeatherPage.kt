@@ -51,8 +51,10 @@ import com.project.weatherreport.domain.viewModel.ForecastViewModel
 import com.project.weatherreport.presentation.animation.LoadingAnimation
 import com.project.weatherreport.presentation.theme.ErrorGradient
 import com.project.weatherreport.presentation.theme.Gradient
+import com.project.weatherreport.presentation.theme.LightGray
 import java.util.Locale
 
+const val ENTER_CITY_NAME = "Enter a city to get the weather forecast"
 
 @Composable
 fun ShowWeatherScreen(viewModelProvider: ViewModelProvider, modifier: Modifier) {
@@ -67,22 +69,16 @@ fun ShowWeatherScreen(viewModelProvider: ViewModelProvider, modifier: Modifier) 
         searchText = searchText,
         isSearching = isSearching,
         modifier = modifier,
-//        reportIndicator = reportIndicator,
         message = message
     )
-
-
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShowData(
     viewModel: ForecastViewModel,
     searchText: String,
     isSearching: Boolean,
     modifier: Modifier,
-//    reportIndicator: Boolean,
     message: String?
 ) {
 
@@ -90,12 +86,30 @@ private fun ShowData(
     val alpha by animateFloatAsState(
         targetValue = if (data != null) 1f else 0f,
         animationSpec = tween(durationMillis = 2500),
-        label = "" // Увеличиваем длительность анимации
+        label = ""
     )
+
+    SearchInputField(searchText, modifier, viewModel::onSearchTextChange)
+
+    when {
+        isSearching -> LoadingAnimation(modifier = modifier)
+        searchText.isEmpty() -> ShowEnterCityMessage(modifier)
+        message != null -> ShowErrorMessage(modifier, message)
+        data != null -> ShowWeatherData(modifier, alpha, data)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchInputField(
+    searchText: String,
+    modifier: Modifier,
+    onValueChange: (String) -> Unit
+) {
     Row(modifier = Modifier.fillMaxSize(1f)) {
         OutlinedTextField(
             value = searchText,
-            onValueChange = viewModel::onSearchTextChange,
+            onValueChange = onValueChange,
             modifier = modifier
                 .fillMaxWidth(1f)
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp),
@@ -104,93 +118,81 @@ private fun ShowData(
             shape = RoundedCornerShape(size = 40.dp)
         )
     }
+}
 
-    if (!isSearching) {
-
-        if (searchText.isEmpty() && message == null) {
-
-            Row(
-                modifier = modifier,
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Column(
-                    modifier = modifier
-                        .clip(CardDefaults.shape)
-                        .size(200.dp)
-                        .background(Gradient),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Enter a city to get the weather forecast",
-                        color = Color.White,
-                        fontSize = 27.sp, style = MaterialTheme.typography.headlineMedium,
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-
-        }
-
-        message?.let {
-            Row(
-                modifier = modifier,
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Column(
-                    modifier = modifier
-                        .clip(CardDefaults.shape)
-                        .size(200.dp)
-                        .background(ErrorGradient),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-
-                    Text(
-                        text = it,
-                        color = Color.White,
-                        fontSize = 27.sp, style = MaterialTheme.typography.headlineMedium,
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-        }
-
+@Composable
+private fun ShowEnterCityMessage(modifier: Modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
         Column(
             modifier = modifier
-                .alpha(alpha)
-                .fillMaxWidth(1f)
-                .fillMaxHeight(1f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Gradient)
+                .size(200.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            if (data != null) {
-                Row(
-                    modifier = modifier.padding(top = 100.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TodayForecast(data = data, modifier = modifier)
-                }
+            Text(
+                text = ENTER_CITY_NAME,
+                color = Color.White,
+                fontSize = 27.sp,
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
 
-                Row(modifier = modifier) {
-                    ForecastFourDaysAfter(
-                        forecast = data?.forecast?.forecastday?.drop(1),
-                        modifier = modifier
-                    )
-                }
-            }
+@Composable
+private fun ShowErrorMessage(modifier: Modifier, message: String) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Column(
+            modifier = modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(ErrorGradient)
+                .size(200.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = message,
+                color = Color.White,
+                fontSize = 27.sp,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = modifier.fillMaxWidth(1f),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun ShowWeatherData(modifier: Modifier, alpha: Float, data: ForecastModel?) {
+    Column(
+        modifier = modifier
+            .alpha(alpha)
+    ) {
+        Row(
+            modifier = modifier.padding(top = 100.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TodayForecast(data = data, modifier = modifier)
         }
 
-
-    } else LoadingAnimation(modifier = modifier)
+        Row(modifier = modifier) {
+            ForecastFourDaysAfter(
+                forecast = data?.forecast?.forecastday?.drop(1),
+                modifier = modifier
+            )
+        }
+    }
 }
 
 
@@ -215,7 +217,7 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                 .height(250.dp)
                 .padding(horizontal = 40.dp)
                 .shadow(elevation = 3.dp, shape = CardDefaults.shape)
-                .border(width = 3.dp, color = Color(0x5EFFFFFF), shape = CardDefaults.shape)
+                .border(width = 3.dp, color = LightGray, shape = CardDefaults.shape)
                 .clip(CardDefaults.shape)
                 .background(Gradient)
 
@@ -224,7 +226,7 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier
+                modifier = modifier
 
                     .fillMaxHeight(1f)
                     .fillMaxWidth(1f)
@@ -265,7 +267,7 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(top = 0.dp)
+                        modifier = modifier.padding(top = 0.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.Bottom,
@@ -312,7 +314,13 @@ private fun TodayForecast(data: ForecastModel?, modifier: Modifier) {
                         text = getCurrentDateWithDayAndMonthNames(),
                         fontSize = 20.sp,
                         color = Color.White,
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = modifier.basicMarquee(
+                            iterations = Int.MAX_VALUE,
+                            delayMillis = 2000,
+                            initialDelayMillis = 2000,
+                            velocity = 50.dp
+                        )
                     )
                 }
             }
@@ -357,7 +365,7 @@ private fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifi
                     .clip(CardDefaults.shape)
                     .shadow(elevation = 3.dp, shape = CardDefaults.shape)
                     .fillMaxWidth(1f)
-                    .border(width = 3.dp, color = Color(0x5EFFFFFF), shape = CardDefaults.shape)
+                    .border(width = 3.dp, color = LightGray, shape = CardDefaults.shape)
                     .background(Gradient),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -391,8 +399,8 @@ private fun ForecastFourDaysAfter(forecast: List<Forecastday>?, modifier: Modifi
                     )
                 }
                 Column(
-                    modifier = Modifier
-                        .background(Color(0x5EFFFFFF).copy(0.3f))
+                    modifier = modifier
+                        .background(LightGray.copy(0.3f))
                         .height(70.dp)
                         .width(3.dp)
 

@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
+const val ERROR_TYPING = "City name entered incorrectly"
+const val ERROR_MESSAGE = "Error executing the request."
+
 @OptIn(FlowPreview::class)
 class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
 
@@ -33,7 +36,6 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
 
     private val searchDebouncer = MutableSharedFlow<String>()
 
-
     private val _message = MutableStateFlow<String?>(null)
     val message = _message
 
@@ -43,7 +45,6 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
                 .debounce(500L)
                 .distinctUntilChanged()
                 .collectLatest { searchQuery ->
-                    _message.value = null // Очищаем сообщение об ошибке, если запрос успешен
                     if (searchQuery.length > 2) {
                         performSearch(searchQuery, _days.value)
                     } else {
@@ -63,27 +64,11 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
         }
     }
 
-//    private fun performSearch(q: String, days: Int) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                _isPerformingSearch.value = true
-//                _reportIndicator.value = false
-//                _forecastData.value = api.getForecast(q, days).body()
-//            } catch (e: Exception) {
-//                Log.e("ForecastViewModel", "Failed to perform search: ${e.message}")
-//
-//                _reportIndicator.value = true
-//
-//            } finally {
-//                _isPerformingSearch.value = false
-//            }
-//        }
-//    }
 
     private fun performSearch(q: String, days: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-            // Очищаем сообщение об ошибке, если запрос успешен
+                // Очищаем сообщение об ошибке, если запрос успешен
                 _isPerformingSearch.value = true
                 val response = api.getForecast(q, days)
                 if (response.isSuccessful) {
@@ -92,12 +77,12 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
                 } else {
                     if (response.code() == 400) {
                         _forecastData.value = null
-                        _message.value = "City name entered incorrectly"
+                        _message.value = ERROR_TYPING
                     }
                 }
             } catch (e: Exception) {
                 Log.e("ForecastViewModel", "Failed to perform search: ${e.message}")
-                _message.value = "Ошибка при выполнении запроса"
+                _message.value = ERROR_MESSAGE
             } finally {
                 _isPerformingSearch.value = false
             }

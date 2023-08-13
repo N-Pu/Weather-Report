@@ -10,12 +10,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.project.weatherreport.presentation.theme.Gray
+import com.project.weatherreport.presentation.theme.Gradient
 import kotlinx.coroutines.delay
 
 
@@ -23,7 +23,7 @@ import kotlinx.coroutines.delay
 fun LoadingAnimation(
     modifier: Modifier,
     circleSize: Dp = 25.dp,
-    circleColor: Color = Gray,
+    circleColor: Brush = Gradient,
     spaceBetween: Dp = 10.dp,
     travelDistance: Dp = 20.dp
 ) {
@@ -74,7 +74,7 @@ fun LoadingAnimation(
                             translationY = -value * distance
                         }
                         .background(
-                            color = circleColor,
+                            brush = circleColor,
                             shape = CircleShape
                         )
                 )
