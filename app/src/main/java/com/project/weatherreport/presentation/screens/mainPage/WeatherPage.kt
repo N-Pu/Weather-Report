@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -115,7 +117,8 @@ private fun SearchInputField(
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp),
             singleLine = true,
             maxLines = 1,
-            shape = RoundedCornerShape(size = 40.dp)
+            shape = RoundedCornerShape(size = 40.dp),
+            label = { Icon(imageVector = Icons.Filled.Search, contentDescription = "Search Icon", tint = Color.Gray)},
         )
     }
 }

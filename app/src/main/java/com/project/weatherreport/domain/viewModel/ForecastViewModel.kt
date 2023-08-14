@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 const val ERROR_TYPING = "City name entered incorrectly"
@@ -42,8 +41,7 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
     init {
         viewModelScope.launch(Dispatchers.IO) {
             searchDebouncer
-                .debounce(500L)
-                .distinctUntilChanged()
+                .debounce(1000L)
                 .collectLatest { searchQuery ->
                     if (searchQuery.length > 2) {
                         performSearch(searchQuery, _days.value)
@@ -56,11 +54,9 @@ class ForecastViewModel(forecastApi: WeatherApiService) : ViewModel() {
 
 
     fun onSearchTextChange(text: String) {
-        _searchText.value = text
         viewModelScope.launch(Dispatchers.IO) {
-            if (!isPerformingSearch.value && text.isNotEmpty()) { // Добавлена проверка на пустой текст
-                searchDebouncer.emit(text)
-            }
+            _searchText.value = text
+            searchDebouncer.emit(text)
         }
     }
 
